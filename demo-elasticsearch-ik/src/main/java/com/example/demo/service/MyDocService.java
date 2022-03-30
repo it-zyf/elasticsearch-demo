@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.controller.APIResponse;
+import com.example.demo.vo.EsEntity;
 import com.example.demo.vo.User;
 
 import java.util.List;
@@ -17,4 +18,20 @@ public interface MyDocService {
      * @return
      */
     APIResponse bulkInsertRecord(String indexName, List<User> list);
+
+    /**
+     * 修改数据
+     * @param indexName
+     * @param esEntity
+     * @return
+     */
+    APIResponse updateRecord(String indexName, EsEntity esEntity);
+
+    /**
+     * 根据条件删除
+     * @param indexName
+     * @param esEntity
+     * @return
+     */
+    APIResponse del(String indexName, EsEntity esEntity);
 }

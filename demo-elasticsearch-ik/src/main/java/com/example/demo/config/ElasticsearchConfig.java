@@ -2,8 +2,6 @@ package com.example.demo.config;
 
 
 import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
@@ -13,11 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-//@Configuration
+/**
+ * @author v-zhangyafeng3
+ */
+@Configuration
 public class ElasticsearchConfig {
     /**
      * 使用的协议
@@ -44,22 +41,20 @@ public class ElasticsearchConfig {
      */
     final static int maxConnectPerRoute = 100;
 
-//    @Value("${spring.elasticsearch.uri}")
-//    String[] nodes;
+    @Value("${spring.elasticsearch.host}")
+    private String host;
 
-    @Value("${spring.elasticsearch.rest.username}")
-    String username;
+    @Value("${spring.elasticsearch.port}")
+    private Integer port;
 
-    @Value("${spring.elasticsearch.rest.password}")
-    String password;
 
 
     @Bean(name = "restHighLevelClient")
     public RestHighLevelClient client() {
-        RestClientBuilder builder = RestClient.builder(new HttpHost("10.225.1.231", 9200, "http"));
+        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, "http"));
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY,new UsernamePasswordCredentials(username, password));
+//        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
 
         builder.setHttpClientConfigCallback(httpClientBuilder -> {
             httpClientBuilder.disableAuthCaching();
