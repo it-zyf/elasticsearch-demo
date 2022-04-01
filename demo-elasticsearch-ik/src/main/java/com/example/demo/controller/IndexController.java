@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.service.IndexService;
 import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -40,5 +43,14 @@ public class IndexController {
         }
         return apiResponse;
     }
+
+    @PostMapping("/es/index/{indexName}")
+    public APIResponse index(@PathVariable String indexName) throws IOException {
+
+
+        return indexService.index(indexName);
+    }
+
+
 
 }

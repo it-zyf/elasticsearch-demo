@@ -1,5 +1,6 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.controller.APIResponse;
 import com.example.demo.service.IndexService;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -9,6 +10,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +66,22 @@ public class IndexServiceImpl implements IndexService {
         request.indices(index);
         boolean exists = restHighLevelClient.indices().exists(request, RequestOptions.DEFAULT);
         return exists;
+    }
+
+    @Override
+    public APIResponse index(String indexName) throws IOException{
+
+        XContentBuilder xContentBuilder = JsonXContent.contentBuilder()
+                .startObject()
+                    .startObject("properties")
+                    .startObject("name")
+                    .field("type", "text")
+                    .endObject()
+                    .endObject()
+                .endObject();
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName).mapping(xContentBuilder);
+        restHighLevelClient.indices().create(createIndexRequest,RequestOptions.DEFAULT);
+        return new APIResponse();
     }
 
 }
