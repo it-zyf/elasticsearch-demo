@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.service.MyDocService;
 import com.example.demo.vo.EsEntity;
 import com.example.demo.vo.Parameter2;
+import com.example.demo.vo.SearchEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +45,12 @@ public class MyDocController {
     @PostMapping("/index/del/{indexName}")
     public APIResponse del(@PathVariable String indexName, @RequestBody EsEntity esEntity){
         return myDocService.del(indexName,esEntity);
+    }
+
+
+    @PostMapping("/index/query")
+    public APIResponse query(@RequestBody SearchEntity searchEntity){
+        return myDocService.query(searchEntity);
     }
 
 

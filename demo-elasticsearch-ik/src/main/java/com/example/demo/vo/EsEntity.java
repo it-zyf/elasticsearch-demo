@@ -51,7 +51,7 @@ public class EsEntity {
     //知识标题
     private String knowledgeName;
 
-    private String name;
 
-    private Integer age;
+
+
 }

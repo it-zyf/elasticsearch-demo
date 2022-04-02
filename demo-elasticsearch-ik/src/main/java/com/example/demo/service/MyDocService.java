@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.controller.APIResponse;
 import com.example.demo.vo.EsEntity;
+import com.example.demo.vo.SearchEntity;
 import com.example.demo.vo.User;
 
 import java.util.List;
@@ -34,4 +35,12 @@ public interface MyDocService {
      * @return
      */
     APIResponse del(String indexName, EsEntity esEntity);
+
+    /**
+     * 全文检索查询
+     * @param searchEntity
+     * @return
+     */
+    APIResponse query(SearchEntity searchEntity);
+
 }

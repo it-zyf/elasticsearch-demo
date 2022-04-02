@@ -1,6 +1,6 @@
 spring:
   elasticsearch:
-    host: 10.225.1.231
+    host: localhost
     port: 9200
 server:
   port: 9001

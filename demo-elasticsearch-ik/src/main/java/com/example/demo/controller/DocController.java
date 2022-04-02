@@ -103,7 +103,8 @@ public class DocController {
         sourceBuilder.query(fuzziness);
 
 //        sourceBuilder.query(matchQueryBuilder);
-        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        sourceBuilder.from(1);
+        sourceBuilder.size(10);
         searchRequest.source(sourceBuilder);
         try {
             SearchResponse response = docService.search(searchRequest);
