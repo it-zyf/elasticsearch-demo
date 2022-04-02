@@ -1,6 +1,7 @@
 package com.example.demo.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSON;
 import com.example.demo.controller.APIResponse;
 import com.example.demo.service.MyDocService;
 import com.example.demo.vo.EsEntity;
@@ -16,6 +17,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -67,23 +69,24 @@ public class MyDocServiceImpl implements MyDocService {
         apiResponse.setResponseCode(APIResponse.OK);
         try {
             SearchRequest searchRequest = new SearchRequest(indexName);
-            SearchSourceBuilder builder = new SearchSourceBuilder();
-            builder.query(QueryBuilders.termQuery("name", esEntity.getAssetsName()));
-            searchRequest.source(builder);
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must(QueryBuilders.termQuery("dataSource", esEntity.getDataSource()));
+            boolQuery.must(QueryBuilders.termQuery("id",esEntity.getId()));
+            searchRequest.source(new SearchSourceBuilder().query(boolQuery));
             SearchResponse entity = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            if (null != entity.getHits().getHits()) {
+            if (null != entity.getHits().getHits() && entity.getHits().getTotalHits().value==1) {
                 for (SearchHit hit : entity.getHits().getHits()) {
                     //修改
                     UpdateRequest updateRequest = new UpdateRequest(indexName, hit.getId());
-                    updateRequest.doc(BeanUtil.beanToMap(esEntity));
+                    updateRequest.doc(BeanUtil.beanToMap(entity),XContentType.JSON);
                     restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
                 }
             }
+            return apiResponse;
         } catch (Exception e) {
-            apiResponse.setResponseCode(APIResponse.ERROR);
-            log.error("批量新增文档失败，异常信息：{}", e);
+            log.error("更新文档失败，异常信息：{}", e);
+            return apiResponse;
         }
-        return apiResponse;
     }
 
     @Override
@@ -92,7 +95,10 @@ public class MyDocServiceImpl implements MyDocService {
         apiResponse.setResponseCode(APIResponse.OK);
         try {
             DeleteByQueryRequest request = new DeleteByQueryRequest(indexName);
-            request.setQuery(QueryBuilders.termQuery("name", esEntity.getAssetsName()));
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must(QueryBuilders.termQuery("dataSource", esEntity.getDataSource()));
+            boolQuery.must(QueryBuilders.termQuery("id",esEntity.getId()));
+            request.setQuery(boolQuery);
             restHighLevelClient.deleteByQuery(request,RequestOptions.DEFAULT);
         } catch (Exception e) {
             apiResponse.setResponseCode(APIResponse.ERROR);
