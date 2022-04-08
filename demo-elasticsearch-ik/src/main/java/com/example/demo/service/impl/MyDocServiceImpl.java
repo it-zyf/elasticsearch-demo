@@ -19,6 +19,7 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
@@ -41,7 +42,7 @@ public class MyDocServiceImpl implements MyDocService {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
-    private static final String indexName="dev_data1";
+    private static final String indexName="dev-data";
 
     @Override
     public APIResponse bulkInsertRecord(String indexName, List<User> list) {
@@ -115,7 +116,7 @@ public class MyDocServiceImpl implements MyDocService {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
         //全文查询
-        MultiMatchQueryBuilder fuzziness = QueryBuilders.multiMatchQuery(searchEntity.getKeyWord(),
+        MultiMatchQueryBuilder builder = QueryBuilders.multiMatchQuery(searchEntity.getKeyWord(),
                 "loopId",
                 "loopTitle",
                 "loopNo",
@@ -123,20 +124,23 @@ public class MyDocServiceImpl implements MyDocService {
                 "assetsIP",
                 "patchName",
                 "toolName",
-                "knowledgeName");
-        sourceBuilder.query(fuzziness);
-        sourceBuilder.from(searchEntity.getPageNo());
+                "knowledgeName")
+                .operator(Operator.AND);
+        sourceBuilder.query(builder);
+        sourceBuilder.from((searchEntity.getPageNo()-1)*searchEntity.getPageSize());
         sourceBuilder.size(searchEntity.getPageSize());
         searchRequest.source(sourceBuilder);
         try {
             SearchResponse response = restHighLevelClient.search(searchRequest,RequestOptions.DEFAULT);
             SearchHits hits = response.getHits();
+            long total = hits.getTotalHits().value;
             //结果集处理
             List<Map<String, Object>> result=new ArrayList<>();
             SearchHit[] hits1 = hits.getHits();
             for (SearchHit entity : hits1) {
                 result.add(entity.getSourceAsMap());
             }
+            apiResponse.setReasonCode(String.valueOf(total));
             apiResponse.setData(result);
         } catch (IOException e) {
             apiResponse.setResponseCode(APIResponse.ERROR);
